@@ -20,7 +20,7 @@ def compute_consensus(alignment):
 	## Create a summary object and calculate the consensus sequence
 
 	summary = AlignInfo.SummaryInfo(alignment)
-	consensus = summary.dumb_consensus(threshold=0.3)
+	consensus = summary.gap_consensus(threshold=0.3)
 	return str(consensus)
 
 
