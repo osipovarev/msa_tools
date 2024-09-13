@@ -5,6 +5,7 @@
 
 import pyfastx
 import argparse
+import sys
 
 
 __author__ = "Ekaterina Osipova, 2024."
@@ -41,8 +42,6 @@ def identify_variable_sites(alignment, target_sequences, rest_sequences):
         target_residues = set([seq[i] for seq in target_sequences])
 
         # Sites where target sequences differ from all others
-        if i > 530 and i < 540:
-            print(i, list(target_residues)[0], rest_residues)
         if len(target_residues) == 1 and list(target_residues)[0] not in rest_residues:
             variable_sites.append(i+1)
 
@@ -72,7 +71,7 @@ def main():
     # Identify variable sites
     variable_sites = identify_variable_sites(alignment, target_sequences, rest_sequences)
     
-    print("Variable sites where target sequences differ from others:", variable_sites)
+    print("Variable sites where target sequences differ from others:", ','.join([str(i) for i in variable_sites]))
 
 
 if __name__ == "__main__":
