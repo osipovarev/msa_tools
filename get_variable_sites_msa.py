@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# This script takes protein multiple alignment in fasta format and a list of sequnces
+# This script takes protein multiple alignment in fasta format and a list of sequences
 # and identifies sites that are variable in these sequences, but conserved in the rest of the alignment
 
 import pyfastx
@@ -33,17 +33,24 @@ def identify_variable_sites(alignment, target_sequences, rest_sequences):
     rest_sequences =   list(rest_sequences.values())
     target_sequences = list(target_sequences.values())
     num_sequences = len(rest_sequences)
-    num_positions = len(rest_sequences[0])
+    if rest_sequences:
+        num_positions = len(rest_sequences[0])
+    else:
+        num_positions = len(target_sequences[0])
 
     variable_sites = []
 
     for i in range(num_positions):
-        rest_residues = set([seq[i] for seq in rest_sequences])
-        target_residues = set([seq[i] for seq in target_sequences])
+        rest_residues =   set([seq[i] for seq in rest_sequences]) - set(['-'])
+        target_residues = set([seq[i] for seq in target_sequences]) - set(['-'])
 
-        # Sites where target sequences differ from all others
-        if len(target_residues) == 1 and list(target_residues)[0] not in rest_residues:
-            variable_sites.append(i+1)
+        if rest_sequences:
+            # Sites where target sequences differ from all others
+            if len(target_residues) == 1 and list(target_residues)[0] not in rest_residues:
+                variable_sites.append(i+1)
+        else:
+            if len(target_residues) > 1:
+                variable_sites.append(i+1)
 
     return variable_sites
 
@@ -52,7 +59,7 @@ def main():
     # Set up argument parsing
     parser = argparse.ArgumentParser(description='Identify variable sites in protein sequences.')
     parser.add_argument('-f', '--fasta', required=True, help='input protein multiple sequence alignment in FASTA format.')
-    parser.add_argument('-l', '--list', required=True, help='comma-separated list of sequence names.')
+    parser.add_argument('-l', '--list', required=True, default='all', help='comma-separated list of sequence names.')
     
     args = parser.parse_args()
 
@@ -71,7 +78,10 @@ def main():
     # Identify variable sites
     variable_sites = identify_variable_sites(alignment, target_sequences, rest_sequences)
     
-    print("Variable sites where target sequences differ from others:", ','.join([str(i) for i in variable_sites]))
+    if rest_sequences:
+        print("Variable sites where target sequences differ from others:", ','.join([str(i) for i in variable_sites]))
+    else:
+        print("Variable sites:", ','.join([str(i) for i in variable_sites]))
 
 
 if __name__ == "__main__":
